@@ -88,3 +88,45 @@ console.log(addArrow(2,3));
 console.log(subbArrow(3,2));
 
   
+//inter face (structure/class)
+
+interface Human {
+    name: string;
+    age: number;
+    greet (name:string) : void ;
+}
+
+const Lisa: Human = {
+    name: "Lisa",
+    age: 27,
+    greet(name: string, job?: string): void {
+        if(job != undefined){
+            console.log(`Hi ${name}!\nDamn I heared you are a ${job} wanna hangout so you can tell me more about it?`);
+        } else {
+            console.log("Hi",name+"!");
+        }
+    }
+}
+
+Lisa.greet("Benson Boone");
+
+interface Vehicle {
+    brand: string;
+}
+
+interface Car extends Vehicle {
+    seats: number;
+    myCar () : void ;
+}
+
+const prius : Car = {
+    brand: "toyota",
+    seats: 5,
+    myCar () : void {
+        console.log(`My car is ${this.brand} and it has ${this.seats}.`);
+    }
+};
+
+prius.myCar();
+
+//tsc && node dist/index.js

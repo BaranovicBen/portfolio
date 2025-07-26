@@ -65,4 +65,25 @@ const addArrow = (num1, num2) => num1 + num2;
 const subbArrow = (num1, num2) => num1 - num2;
 console.log(addArrow(2, 3));
 console.log(subbArrow(3, 2));
+const Lisa = {
+    name: "Lisa",
+    age: 27,
+    greet(name, job) {
+        if (job != undefined) {
+            console.log(`Hi ${name}!\nDamn I heared you are a ${job} wanna hangout so you can tell me more about it?`);
+        }
+        else {
+            console.log("Hi", name + "!");
+        }
+    }
+};
+Lisa.greet("Benson Boone");
+const prius = {
+    brand: "toyota",
+    seats: 5,
+    myCar() {
+        console.log(`My car is ${this.brand} and it has ${this.seats}.`);
+    }
+};
+prius.myCar();
 //# sourceMappingURL=index.js.map
