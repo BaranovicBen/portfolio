@@ -1,7 +1,7 @@
-// NeonBeats Main JavaScript
+// Lyricy Main JavaScript
 // Cyberpunk Music Player Functionality
 
-class NeonBeatsPlayer {
+class LyricyPlayer {
     constructor() {
         this.currentSongIndex = 0;
         this.isPlaying = false;
@@ -564,7 +564,7 @@ class NeonBeatsPlayer {
 
 // Initialize the player when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.player = new NeonBeatsPlayer();
+    window.player = new LyricyPlayer();
 });
 
 // Handle page visibility changes
@@ -816,6 +816,11 @@ document.addEventListener('visibilitychange', () => {
   const searchInput    = document.getElementById("search-input");
   const genreSelect    = document.getElementById("genre-filter");
 
+  // NEW: chips container & controls
+  const chipsBox = document.getElementById("genre-chips");
+  const chipsAllBtn = document.getElementById("chips-all");
+  const chipsNoneBtn = document.getElementById("chips-none");
+
   // --- Helpers ---
   const fmtTime = (sec) => {
     sec = Math.max(0, Math.floor(sec || 0));
@@ -871,6 +876,53 @@ document.addEventListener('visibilitychange', () => {
       genreSelect.value = current;
     }
   };
+  const listGenres = () => {
+    const set = new Set();
+    for (const s of songs) {
+      const g = (s?.genre || "").trim();
+      if (g) set.add(g);
+    }
+    return Array.from(set).sort((a,b)=>a.localeCompare(b));
+  };
+
+  let selectedGenres = new Set(listGenres());
+
+  function buildGenreChips() {
+    if (!chipsBox) return;
+    chipsBox.innerHTML = "";
+
+    const genres = listGenres();
+    if (selectedGenres.size === 0) selectedGenres = new Set(genres);
+
+    genres.forEach(g => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "chip" + (selectedGenres.has(g) ? " active" : "");
+      btn.textContent = g;
+      btn.setAttribute("data-genre", g);
+
+      btn.addEventListener("click", () => {
+        if (selectedGenres.has(g)) selectedGenres.delete(g);
+        else selectedGenres.add(g);
+        btn.classList.toggle("active");
+        apply();
+      });
+
+      chipsBox.appendChild(btn);
+    });
+
+    chipsAllBtn?.addEventListener("click", () => {
+      selectedGenres = new Set(genres);
+      chipsBox.querySelectorAll(".chip").forEach(ch => ch.classList.add("active"));
+      apply();
+    });
+
+    chipsNoneBtn?.addEventListener("click", () => {
+      selectedGenres.clear();
+      chipsBox.querySelectorAll(".chip").forEach(ch => ch.classList.remove("active"));
+      apply();
+    });
+  }
 
   const matchesSearch = (song, q) => {
     if (!q) return true;
@@ -879,6 +931,12 @@ document.addEventListener('visibilitychange', () => {
       (song.title && song.title.toLowerCase().includes(q)) ||
       (song.artist && song.artist.toLowerCase().includes(q))
     );
+  };
+
+  const matchesSelectedGenres = (song) => {
+    const g = (song.genre || "").trim();
+    if (selectedGenres.size === 0) return false; // "off" = show none
+    return selectedGenres.has(g);
   };
 
   const matchesGenre = (song, g) => {
@@ -922,37 +980,32 @@ document.addEventListener('visibilitychange', () => {
   };
 
   // --- Filter + search pipeline ---
-  let q = "";
-  let g = "";
+let q = "";
 
-  const apply = () => {
-    const filtered = songs.filter(s => matchesSearch(s, q) && matchesGenre(s, g));
-    updateStats(filtered);
-    renderSongs(filtered);
-  };
+const apply = () => {
+  const filtered = songs.filter(s => matchesSearch(s, q) && matchesSelectedGenres(s));
+  updateStats(filtered);
+  renderSongs(filtered);
+};
 
-  // Debounce search
-  const debounce = (fn, ms = 200) => {
-    let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
-  };
+// Debounced search (keep)
+const debounce = (fn, ms = 200) => {
+  let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+};
 
-  searchInput && searchInput.addEventListener("input", debounce(() => {
-    q = searchInput.value || "";
-    apply();
-  }, 200));
+searchInput && searchInput.addEventListener("input", debounce(() => {
+  q = searchInput.value || "";
+  apply();
+}, 200));
 
-  genreSelect && genreSelect.addEventListener("change", () => {
-    g = genreSelect.value || "";
-    apply();
-  });
+// --- Init ---
+buildGenreChips();
+updateStats(songs);
+renderSongs(songs);
 
-  // --- Init ---
-  buildGenreOptions();
-  updateStats(songs);
-  renderSongs(songs);
 })();
 
 // Export for global access
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = NeonBeatsPlayer;
+    module.exports = LyricyPlayer;
 }
