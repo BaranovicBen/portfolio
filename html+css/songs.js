@@ -1,4 +1,4 @@
-// NeonBeats Music Database
+// Lyricy Music Database
 // Demo songs with time-coded lyrics for synchronization
 
 const SONGS = [
@@ -393,7 +393,7 @@ const SONGS = [
 
 // Instructions for adding new songs:
 /*
-To add a new song to the NeonBeats database:
+To add a new song to the Lyricy database:
 
 1. Add a new song object to the SONGS array with the following structure:
    {

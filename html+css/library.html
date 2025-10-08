@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library - NeonBeats</title>
+    <title>Library - Lyricy</title>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -17,9 +17,9 @@
     <style>
         :root {
             --neon-cyan: #00ffff;
-            --neon-magenta: #ff007a;
-            --neon-green: #00ff9f;
-            --neon-yellow: #ffff00;
+            --neon-magenta: #ff00ee;
+            --neon-green: #99ffcc;
+            --neon-yellow: #cccc66;
             --dark-purple: #2d1b69;
             --steel-gray: #1a1a1a;
             --deep-black: #0a0a0a;
@@ -407,25 +407,74 @@
             }
         }
 
-        /* Scrollbar Styling */
+        /* WebKit (Chrome/Safari/Edge) */
         ::-webkit-scrollbar {
-            width: 8px;
+        width: 8px;              /* or 0 if you want it hidden until hover */
+        height: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: var(--steel-gray);
+        background: transparent !important;   /* hide the track */
+        border: none;
+        box-shadow: none;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--neon-cyan);
-            border-radius: 4px;
-            box-shadow: 0 0 8px var(--neon-cyan);
+        background: var(--neon-cyan);
+        border-radius: 4px;
+        box-shadow: 0 0 8px var(--neon-cyan);
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--neon-magenta);
-            box-shadow: 0 0 12px var(--neon-magenta);
+        background: var(--neon-magenta);
+        box-shadow: 0 0 12px var(--neon-magenta);
         }
+
+        /* Firefox */
+        * {
+        scrollbar-width: thin;                        /* thin thumb */
+        scrollbar-color: var(--neon-cyan) transparent;/* thumb + transparent track */
+        }
+
+.genre-chips {
+  display: flex; flex-wrap: wrap; gap: .5rem;
+}
+
+.chip {
+  padding: .5rem .9rem;
+  border-radius: 999px;
+  border: 2px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  background: rgba(26,26,26,.6);
+  cursor: pointer;
+  user-select: none;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s, color .12s, background .12s;
+  box-shadow: 0 0 10px rgba(0,255,255,.25);
+  font-weight: 600;
+  letter-spacing: .5px;
+}
+.chip:hover { transform: translateY(-1px); }
+.chip.active {
+  background: var(--neon-magenta);
+  border-color: var(--neon-magenta);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255,0,122,.45);
+}
+
+.chip-ctl {
+  margin-top: .6rem;
+  margin-right: .4rem;
+  padding: .4rem .8rem;
+  border-radius: 10px;
+  border: 1px solid var(--neon-cyan);
+  background: transparent;
+  color: var(--neon-cyan);
+  cursor: pointer;
+}
+.chip-ctl:hover {
+  border-color: var(--neon-magenta);
+  color: var(--neon-magenta);
+}
     </style>
 </head>
 <body>
@@ -435,7 +484,7 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-content">
-            <div class="logo">NEONBEATS</div>
+            <div class="logo">Lyricy</div>
             <ul class="nav-links">
                 <li><a href="index.html">PLAYER</a></li>
                 <li><a href="library.html" class="active">LIBRARY</a></li>
@@ -473,21 +522,22 @@
 
         <!-- Search and Filter Controls -->
         <section class="controls-section">
-            <div class="search-container">
-                <label class="search-label">SEARCH COLLECTION</label>
-                <input type="text" class="search-input" id="search-input" placeholder="Search by title or artist...">
+        <div class="search-container">
+            <label class="search-label">SEARCH COLLECTION</label>
+            <input type="text" class="search-input" id="search-input" placeholder="Search by title or artist...">
+        </div>
+
+        <!-- REPLACED: genre dropdown -> chips -->
+        <div class="filter-container">
+            <label class="filter-label">FILTER BY GENRE</label>
+            <div id="genre-chips" class="genre-chips"></div>
+            <div class="chip-controls">
+            <button class="chip-ctl" id="chips-all" type="button" title="Enable all">All</button>
+            <button class="chip-ctl" id="chips-none" type="button" title="Disable all">None</button>
             </div>
-            <div class="filter-container">
-                <label class="filter-label">FILTER BY GENRE</label>
-                <select class="filter-select" id="genre-filter">
-                    <option value="">All Genres</option>
-                    <option value="synthwave">Synthwave</option>
-                    <option value="cyberpunk">Cyberpunk</option>
-                    <option value="future-bass">Future Bass</option>
-                    <option value="industrial">Industrial</option>
-                </select>
-            </div>
+        </div>
         </section>
+
 
         <!-- Songs Grid -->
         <section class="songs-grid" id="songs-grid">
@@ -504,7 +554,7 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <p class="footer-text">© 2024 NeonBeats - Cyberpunk Music Experience</p>
+        <p class="footer-text">© 2025 Lyricy - Benjamin Baranovic</p>
     </footer>
 
     <!-- JavaScript -->
