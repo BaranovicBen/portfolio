@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library - NeonBeats</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    
+    <style>
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-magenta: #ff007a;
+            --neon-green: #00ff9f;
+            --neon-yellow: #ffff00;
+            --dark-purple: #2d1b69;
+            --steel-gray: #1a1a1a;
+            --deep-black: #0a0a0a;
+            --electric-orange: #ff6b35;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--deep-black);
+            color: var(--neon-cyan);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--neon-cyan);
+            z-index: 1000;
+            padding: 1rem 2rem;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--neon-cyan);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-magenta);
+            text-shadow: 0 0 8px var(--neon-magenta);
+        }
+
+        .nav-links a.active {
+            color: var(--neon-magenta);
+            text-shadow: 0 0 8px var(--neon-magenta);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--deep-black) 0%, var(--dark-purple) 100%);
+            position: relative;
+            padding: 2rem;
+        }
+
+        /* Header Section */
+        .library-header {
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            text-align: center;
+        }
+
+        .library-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 20px var(--neon-cyan);
+            margin-bottom: 1rem;
+            letter-spacing: 3px;
+        }
+
+        .library-subtitle {
+            font-size: 1.2rem;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 10px var(--neon-magenta);
+            font-weight: 300;
+        }
+
+        /* Statistics Dashboard */
+        .stats-dashboard {
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.5);
+            border-color: var(--neon-magenta);
+        }
+
+        .stat-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 15px var(--neon-magenta);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan);
+            margin-top: 0.5rem;
+        }
+
+        /* Search and Filter Section */
+        .controls-section {
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            align-items: end;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-label {
+            display: block;
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(26, 26, 26, 0.8);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 25px;
+            color: var(--neon-cyan);
+            font-size: 1rem;
+            font-family: 'Rajdhani', sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--neon-magenta);
+            box-shadow: 0 0 25px rgba(255, 0, 122, 0.5);
+        }
+
+        .search-input::placeholder {
+            color: rgba(0, 255, 255, 0.5);
+        }
+
+        .filter-container {
+            position: relative;
+        }
+
+        .filter-label {
+            display: block;
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(26, 26, 26, 0.8);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 25px;
+            color: var(--neon-cyan);
+            font-size: 1rem;
+            font-family: 'Rajdhani', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--neon-magenta);
+            box-shadow: 0 0 25px rgba(255, 0, 122, 0.5);
+        }
+
+        /* Song Grid */
+        .songs-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .song-card {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        .song-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.4);
+            border-color: var(--neon-magenta);
+        }
+
+        .song-card-cover {
+            width: 100%;
+            height: 180px;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            object-fit: cover;
+            border: 2px solid var(--neon-magenta);
+            box-shadow: 0 0 15px rgba(255, 0, 122, 0.3);
+        }
+
+        .song-card-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan);
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .song-card-artist {
+            font-size: 1rem;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 6px var(--neon-magenta);
+            margin-bottom: 0.3rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .song-card-genre {
+            font-size: 0.8rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 5px var(--neon-green);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .song-card-duration {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 5px var(--neon-yellow);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 20px var(--neon-magenta);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-text {
+            font-size: 1.1rem;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 8px var(--neon-magenta);
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(26, 26, 26, 0.9);
+            border-top: 1px solid var(--neon-cyan);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-text {
+            color: var(--neon-cyan);
+            font-size: 0.9rem;
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .controls-section {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .stats-dashboard {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .songs-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .library-title {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .nav-links a {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--steel-gray);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan);
+            border-radius: 4px;
+            box-shadow: 0 0 8px var(--neon-cyan);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-magenta);
+            box-shadow: 0 0 12px var(--neon-magenta);
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Background Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">NEONBEATS</div>
+            <ul class="nav-links">
+                <li><a href="index.html">PLAYER</a></li>
+                <li><a href="library.html" class="active">LIBRARY</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header Section -->
+        <section class="library-header">
+            <h1 class="library-title">MUSIC LIBRARY</h1>
+            <p class="library-subtitle">Explore Your Digital Collection</p>
+        </section>
+
+        <!-- Statistics Dashboard -->
+        <section class="stats-dashboard">
+            <div class="stat-card">
+                <span class="stat-number" id="total-tracks">5</span>
+                <div class="stat-label">TOTAL TRACKS</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="total-artists">4</span>
+                <div class="stat-label">UNIQUE ARTISTS</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="total-genres">4</span>
+                <div class="stat-label">GENRES</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="total-duration">18:45</span>
+                <div class="stat-label">TOTAL DURATION</div>
+            </div>
+        </section>
+
+        <!-- Search and Filter Controls -->
+        <section class="controls-section">
+            <div class="search-container">
+                <label class="search-label">SEARCH COLLECTION</label>
+                <input type="text" class="search-input" id="search-input" placeholder="Search by title or artist...">
+            </div>
+            <div class="filter-container">
+                <label class="filter-label">FILTER BY GENRE</label>
+                <select class="filter-select" id="genre-filter">
+                    <option value="">All Genres</option>
+                    <option value="synthwave">Synthwave</option>
+                    <option value="cyberpunk">Cyberpunk</option>
+                    <option value="future-bass">Future Bass</option>
+                    <option value="industrial">Industrial</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Songs Grid -->
+        <section class="songs-grid" id="songs-grid">
+            <!-- Song cards will be populated by JavaScript -->
+        </section>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="empty-state" style="display: none;">
+            <div class="empty-state-icon">🎵</div>
+            <h3 class="empty-state-title">No Songs Found</h3>
+            <p class="empty-state-text">Try adjusting your search or filter criteria</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-text">© 2024 NeonBeats - Cyberpunk Music Experience</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="songs.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
