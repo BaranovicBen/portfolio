@@ -1,6 +1,6 @@
 # Web Projects
 
-This repository contains my web work (mostly JavaScript/TypeScript, HTML, and CSS).  
+This repository contains my web work (think JavaScript/TypeScript, HTML, and CSS).  
 You can see my most recent project here: **[Lyricy](https://baranovicben.github.io/portfolio/)**
 
 ## What is Lyricy?
