@@ -1,17 +1,618 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>HangOut</title>
-    </head>
-    <body>
-        <h1>HangOut</h1>
-        <hr>
-        <br>
-        <h2>Welcome to HangOut</h2>
-        <br>
-        <h3>About us</h3>
-        <br>
-        <p>We like to be social :)<p>
-        <br>        
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeonBeats - Cyberpunk Music Player</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    
+    <style>
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-magenta: #ff007a;
+            --neon-green: #00ff9f;
+            --neon-yellow: #ffff00;
+            --dark-purple: #2d1b69;
+            --steel-gray: #1a1a1a;
+            --deep-black: #0a0a0a;
+            --electric-orange: #ff6b35;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--deep-black);
+            color: var(--neon-cyan);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--neon-cyan);
+            z-index: 1000;
+            padding: 1rem 2rem;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--neon-cyan);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-magenta);
+            text-shadow: 0 0 8px var(--neon-magenta);
+        }
+
+        .nav-links a.active {
+            color: var(--neon-magenta);
+            text-shadow: 0 0 8px var(--neon-magenta);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--deep-black) 0%, var(--dark-purple) 100%);
+            position: relative;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            height: 40vh;
+            background: url('resources/hero-bg.jpg') center/cover;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(2px);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 20px var(--neon-cyan);
+            margin-bottom: 1rem;
+            letter-spacing: 3px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 10px var(--neon-magenta);
+            font-weight: 300;
+        }
+
+        /* Player Container */
+        .player-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        /* Current Song Display */
+        .current-song {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .song-info {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .album-art {
+            width: 200px;
+            height: 200px;
+            border-radius: 15px;
+            margin: 0 auto 1.5rem;
+            display: block;
+            border: 2px solid var(--neon-magenta);
+            box-shadow: 0 0 20px rgba(255, 0, 122, 0.5);
+            object-fit: cover;
+        }
+
+        .song-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .song-artist {
+            font-size: 1.2rem;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 8px var(--neon-magenta);
+            margin-bottom: 0.3rem;
+        }
+
+        .song-album {
+            font-size: 1rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 6px var(--neon-green);
+        }
+
+        /* Audio Controls */
+        .audio-controls {
+            margin-top: 2rem;
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-btn {
+            background: transparent;
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .control-btn:hover {
+            background: var(--neon-cyan);
+            color: var(--deep-black);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            transform: scale(1.1);
+        }
+
+        .play-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            border-color: var(--neon-magenta);
+            color: var(--neon-magenta);
+            box-shadow: 0 0 20px rgba(255, 0, 122, 0.4);
+        }
+
+        .play-btn:hover {
+            background: var(--neon-magenta);
+            color: var(--deep-black);
+            box-shadow: 0 0 30px rgba(255, 0, 122, 0.7);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 255, 255, 0.2);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.1s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--neon-cyan);
+            margin-top: 0.5rem;
+        }
+
+        /* Volume Control */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 6px;
+            background: rgba(0, 255, 255, 0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .volume-fill {
+            height: 100%;
+            background: var(--neon-green);
+            border-radius: 3px;
+            width: 70%;
+            box-shadow: 0 0 8px rgba(0, 255, 159, 0.5);
+        }
+
+        /* Lyrics Panel */
+        .lyrics-panel {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid var(--neon-magenta);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(255, 0, 122, 0.3);
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        .lyrics-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 10px var(--neon-magenta);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .lyrics-content {
+            font-size: 1.1rem;
+            line-height: 2;
+        }
+
+        .lyric-line {
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .lyric-line:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-left-color: var(--neon-cyan);
+        }
+
+        .lyric-line.active {
+            background: rgba(255, 0, 122, 0.2);
+            color: var(--neon-magenta);
+            text-shadow: 0 0 8px var(--neon-magenta);
+            border-left-color: var(--neon-magenta);
+            transform: translateX(10px);
+        }
+
+        /* Quick Picks */
+        .quick-picks {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .quick-picks-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 15px var(--neon-cyan);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .quick-picks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .quick-pick-card {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .quick-pick-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.4);
+            border-color: var(--neon-magenta);
+        }
+
+        .quick-pick-cover {
+            width: 100%;
+            height: 120px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            object-fit: cover;
+            border: 2px solid var(--neon-magenta);
+        }
+
+        .quick-pick-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            color: var(--neon-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-pick-artist {
+            font-size: 0.9rem;
+            color: var(--neon-magenta);
+        }
+
+        /* Audio Element */
+        #audio-player {
+            display: none;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(26, 26, 26, 0.9);
+            border-top: 1px solid var(--neon-cyan);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-text {
+            color: var(--neon-cyan);
+            font-size: 0.9rem;
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .player-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 1rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .nav-links a {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.9rem;
+            }
+
+            .quick-picks-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .lyrics-panel {
+                height: 400px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--steel-gray);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan);
+            border-radius: 4px;
+            box-shadow: 0 0 8px var(--neon-cyan);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-magenta);
+            box-shadow: 0 0 12px var(--neon-magenta);
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Background Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">NEONBEATS</div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">PLAYER</a></li>
+                <li><a href="library.html">LIBRARY</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1 class="hero-title" data-splitting>NEONBEATS</h1>
+                <p class="hero-subtitle">Cyberpunk Music Experience</p>
+            </div>
+        </section>
+
+        <!-- Player Container -->
+        <div class="player-container">
+            <!-- Current Song Display -->
+            <div class="current-song">
+                <div class="song-info">
+                    <img id="album-art" class="album-art" src="resources/album-cover-1.jpg" alt="Album Cover">
+                    <h2 id="song-title" class="song-title">Neon Dreams</h2>
+                    <p id="song-artist" class="song-artist">Cyberwave</p>
+                    <p id="song-album" class="song-album">Digital Abyss</p>
+                </div>
+
+                <!-- Audio Controls -->
+                <div class="audio-controls">
+                    <div class="control-buttons">
+                        <button class="control-btn" id="prev-btn">⏮</button>
+                        <button class="control-btn play-btn" id="play-btn">▶</button>
+                        <button class="control-btn" id="next-btn">⏭</button>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="time-display">
+                            <span id="current-time">0:00</span>
+                            <span id="duration">4:05</span>
+                        </div>
+                    </div>
+
+                    <!-- Volume Control -->
+                    <div class="volume-container">
+                        <span>🔊</span>
+                        <div class="volume-slider" id="volume-slider">
+                            <div class="volume-fill" id="volume-fill"></div>
+                        </div>
+                        <span id="volume-display">70%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lyrics Panel -->
+            <div class="lyrics-panel">
+                <h3 class="lyrics-title">LYRICS</h3>
+                <div class="lyrics-content" id="lyrics-content">
+                    <div class="lyric-line active" data-time="0">In the neon-lit streets of tomorrow</div>
+                    <div class="lyric-line" data-time="5">Where digital dreams come alive</div>
+                    <div class="lyric-line" data-time="10">Cybernetic hearts beating strong</div>
+                    <div class="lyric-line" data-time="15">In this world we survive</div>
+                    <div class="lyric-line" data-time="20">Neon lights guide our way</div>
+                    <div class="lyric-line" data-time="25">Through the digital haze</div>
+                    <div class="lyric-line" data-time="30">Future sounds in our ears</div>
+                    <div class="lyric-line" data-time="35">As we dance through the maze</div>
+                    <div class="lyric-line" data-time="40">Electric pulses in the air</div>
+                    <div class="lyric-line" data-time="45">Synth waves crash around</div>
+                    <div class="lyric-line" data-time="50">Lost in the cyber dream</div>
+                    <div class="lyric-line" data-time="55">Where music is the sound</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Picks -->
+        <section class="quick-picks">
+            <h2 class="quick-picks-title">QUICK PICKS</h2>
+            <div class="quick-picks-grid" id="quick-picks-grid">
+                <!-- Quick pick cards will be populated by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-text">© 2025 NeonBeats - Cyberpunk Music Experience</p>
+    </footer>
+
+    <!-- Hidden Audio Element -->
+    <audio id="audio-player" preload="metadata"></audio>
+
+    <!-- JavaScript -->
+    <script src="songs.js"></script>
+    <script src="main.js"></script>
+</body>
 </html>
